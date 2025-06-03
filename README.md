@@ -34,6 +34,7 @@ The main objective was to add the same behaviour as modern version of Tetris (li
 - T-Spins detection
 - Full clear detection
 - Natural gravity (timed)
+- Ghost Piece (not implemented in the observation)
 
 ### Actions
 
@@ -76,8 +77,8 @@ obs =  {
 Rewards are calculated after each piece is placed, based on the following factors:
 
 - **Height (Low/High)**:
-  - Positive reward if the stack is below the 7th row.
-  - Negative reward if above. This reward scales exponentially based on the number of filled cells per row.
+  - Positive reward if the stack is below the 7th layer.
+  - Negative reward if above. This reward scales exponentially based on the number of filled cells per layer.
   
 - **Holes**:
   - Penalty for each empty cell with filled cells above it.
@@ -106,6 +107,8 @@ Tested with **Python 3.12.1**
 pip install -r requirements.txt
 ```
 
+- To use the notebooks create the folders: 'plots', 'models'
+
 ## Example Usage
 
 ```python
@@ -117,6 +120,32 @@ env = TetrisEnv(board_width=10,
 obs, info = env.reset()
 ```
 
-## Notebooks
+## Playing the game
+
+play.py is a python script that let's you play the game manually and it will create a dataset with transitions of the game inside the folder 'datasets' (created automatically). The main objective was to use the dataset to experiment with Imitation Learning.
+
+Main has four arguments
+
+```python
+main(
+    game_mode="opener", 
+    time_limit=300,
+    fill_cell_prob=0.8,
+    gen_tab_height=7,
+    mode_interval=7
+)
+```
+
+It has 3 gamemodes, each one has a timer that ends the game if certain time has passed (defined by time_limit, in seconds)
+
+- **clean**: Only has a timer
+- **cheese**: Start with a random set of locked pieces in the board (defined by gen_tab_height), and every **mode_interval** (in seconds) it will generate a random layer at the bottom of the board, the probability of each cell to be a filled is defined by 'fill_cell_prob'
+- **opener**: The game will reset your board, queue and current piece every **mode_interval**, it will show a warning at the screen 2 seconds before each reset
+
+### WARNING
+
+If the environment is modified all the datasets created from the previous environment could become deprecated, meaning that using datasets from different environment versions could make the agent learn a non-optimal policy.
+
+## About the notebooks
 
 The training notebooks use a modified version of DQN algorithm used in the [Pytorch DQN tutorial](https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html)
