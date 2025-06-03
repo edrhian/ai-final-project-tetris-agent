@@ -1,5 +1,5 @@
 """
-Funciones auxiliares externas al TetrisEnv
+Aux functions for notebooks
 """
 import torch
 import matplotlib.pyplot as plt
@@ -48,29 +48,26 @@ def eval_bumpiness(board):
     bumpiness = np.sum(np.abs(np.diff(heights)))
     return np.array([bumpiness], dtype=np.float32)
 
-# Funcion que limita la vision del agente, esto hace mas simple la input layer el objetivo es que el agente siga el mismo proceso de
-# 'downstacking', donde el jugador se centra en bajar las filas superiores en vez de tomar en cuenta las filas inferiores.
+'''
+Function that reduces the vision range of the board to the six highest layers
+'''
 def get_six_layer_view(board):
-    has_1 = np.any(board,axis=1) # Devuelve un array booleano, donde cada fila se mira si hay minimamente un uno
-    has_1_idxs = np.where(has_1)[0] # Se obtiene los indices de esas filas 
+    has_1 = np.any(board,axis=1)
+    has_1_idxs = np.where(has_1)[0]
 
-    # Si esta vacio directamente devuelve la tabla vacia
     if len(has_1_idxs) == 0:
         return board[-6:], board.shape[0]
     
-    has_1_first_idx = has_1_idxs[0] # Se obtiene el indice de la fila mas alta
-    
-    # Comprueba que abajo hay 6 filas disponibles (la fila con el 1 esta por encima de 6 filas del suelo del board)
+    has_1_first_idx = has_1_idxs[0]
+
     end_idx = has_1_idxs[0] + 6
 
     is_offset = end_idx > board.shape[0]
     
     if not is_offset:
-        board = board[has_1_first_idx:end_idx,:] # Devuelve las 6 filas, empezando desde el primer 1 encontrado
+        board = board[has_1_first_idx:end_idx,:]
     else:
-        board = board[board.shape[0]-6:,:] # Devuelve las 6 ultimas filas del board
-    # Necesito guardar el indice de la fila mas alta para one hotearla 
-    # indica que tan alto esta el stack, si no, la recompensa/penalizacion de stack height no indicaria bien como juega
+        board = board[board.shape[0]-6:,:]
     return board, has_1_first_idx
 
 def get_upper_outline_idx(board):

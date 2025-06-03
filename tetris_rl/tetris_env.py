@@ -1,5 +1,5 @@
 """
-Entorno de Gym
+Gym Tetris Env
 """
 import numpy as np
 import pygame
