@@ -93,6 +93,8 @@ Rewards are calculated after each piece is placed, based on the following factor
 - **Finesse**:
   - Bonus if the piece is placed within 20 actions.
   - Penalty if more than 20.
+- **Hardrop**:
+  - Bonus for every descended cell with a hardrop
 
 ### Render modes
 
