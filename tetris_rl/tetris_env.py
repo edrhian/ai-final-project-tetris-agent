@@ -112,7 +112,7 @@ class Actions(Enum):
 
 class TetrisEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30,"obs_types":["dict","rgb_array"]}
-    def __init__(self, board_width=10, board_height=22, time_limit_s=120, obs_type="dict",render_mode=None, internal_config=None):
+    def __init__(self, board_width=10, board_height=22, time_limit_s=120, obs_type="rgb_array",render_mode=None, internal_config=None):
         if internal_config == None:
             print("Using Default internal config")
             self.internal_config={

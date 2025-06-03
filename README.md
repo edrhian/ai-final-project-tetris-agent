@@ -1,29 +1,46 @@
-# ia-final-project-tetris-agent
+# Tetris RL Agent - Final AI Project
 
-My final project of AI course
+My final project of AI
 
 ## Introduction
 
-I've created an environment to train an agent with reinforcement learning to play Tetris
+This is the final project for my Artificial Intelligence course. It involves building and training a reinforcement learning agent to play Tetris using a custom environment built with the Gymnasium library.
 
 ## About the environment
+
+The environment was not registered via `gymnasium.envs.registration`
 
 |                   |                                  |
 |-------------------|----------------------------------|
 | Action Space      | Discrete(8)                      |
 | Observation Space | Box(0, 255, (660, 300, 3),uint8) |
-| Make              | from tetris_env import TetrisEnv |
+| Import              | from tetris_env import TetrisEnv |
 
 ### Description
 
-The main objective was to add the same behaviour as modern version of Tetris (like Jstris or Tetr.io), however, due my lack of time and knowledge about gymnasium, I've only acomplished. The environment was created using the gym.Env from gymnasium library.
+The main objective was to add the same behaviour as modern version of Tetris (like Jstris or Tetr.io), however, due to my lack of time, knowledge about gymnasium and game-logic in Python, I wasn't able to recreate 100% of the features. The environment was created using the gym.Env from gymnasium library.
+
+### Features
+
+#### Implemented
+
+- SRS Rotation
+- 7-Bag
+- Forced gravity (the piece moves 1 cell down after 6 non-drop actions)
+
+#### Not implemented
+
+- Piece Spins and Kick Table
+- T-Spins detection
+- Full clear detection
+- Natural gravity (timed)
 
 ### Actions
 
 |VALUE|MEANING|
 |-|-|
-|0|LEFT|
-|1|RIGHT|
+|0|MOVE LEFT|
+|1|MOVE RIGHT|
 |2|ROTATE CLOCKWISE|
 |3|SOFTDROP|
 |4|HARDROP|
@@ -55,3 +72,51 @@ obs =  {
 ```
 
 ### Rewards
+
+Rewards are calculated after each piece is placed, based on the following factors:
+
+- **Height (Low/High)**:
+  - Positive reward if the stack is below the 7th row.
+  - Negative reward if above. This reward scales exponentially based on the number of filled cells per row.
+  
+- **Holes**:
+  - Penalty for each empty cell with filled cells above it.
+
+- **Cheese Layers**:
+  - Penalty for each filled cell above a hole.
+
+- **Bumpiness & Flatness**:
+  - Penalty for uneven column heights.
+  - Bonus for flat columns (height difference = 0).
+
+- **Finesse**:
+  - Bonus if the piece is placed within 20 actions.
+  - Penalty if more than 20.
+
+### Render modes
+
+- `render_mode=human`
+- `render_mode=rgb_array`
+
+## Installation
+
+Tested with **Python 3.12.1**
+
+```bash
+pip install -r requirements.txt
+```
+
+## Example Usage
+
+```python
+from tetris_env import TetrisEnv
+env = TetrisEnv(board_width=10,
+                board_height=22,
+                time_limit_s=120,
+                render_mode='rgb_array')
+obs, info = env.reset()
+```
+
+## Notebooks
+
+The training notebooks use a modified version of DQN algorithm used in the [Pytorch DQN tutorial](https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html)
