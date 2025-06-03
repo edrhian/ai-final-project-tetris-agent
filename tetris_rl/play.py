@@ -1,13 +1,9 @@
 """
-Jugar al Tetris y crear un dataset
-Tiene 3 modos de juego (o mas bien de creacion de datasets)
-- Clean: Juego normal, tablero vacio
-- Cheese: Cada x segundos sube una fila aleatoria con una cantidad de agujeros aleatorios,
-          El tablero empieza con algunas piezas puestas de forma aleatoria
-          Se creo con el objetivo de crear datasets de downstackin (a.k.a. resolver agujeros)
-- Opener: Cada x segundos se vacia el tablero y el entorno (tu pieza actual desaparece y la bolsa se regenera)
-          Se creo con el objetivo de crear datasets de jugadas iniciales (a.k.a. aperturas)
-NOTA: La interfaz no es la misma que la se genera con TetrisEnv(render_mode: 'human' o 'rgb_array')
+Play Tetris and create a dataset of transitions
+Has 3 
+- Clean: Normal game
+- Cheese: Each mode_interval, the game will generate a random layer at the bottom of the board
+- Opener: Each mode_interval, the game will reset the state of the environment, it will give a warning 2 seconds before each reset
 """
 
 import pygame
@@ -132,7 +128,7 @@ def draw_board(screen, board, current_piece, hold_piece, next_piece, score, time
     # Aviso de reinicio en modo "opener"
     if alert_opener:
         alert_font = pygame.font.SysFont("consolas", 30, bold=True)
-        alert_text = alert_font.render("REINICIO INMINENTE", True, (255, 0, 0))
+        alert_text = alert_font.render("RESTARTING", True, (255, 0, 0))
         screen.blit(alert_text, (BOARD_WIDTH * CELL_SIZE // 2 - 100, HEIGHT // 2 - 20))
 
     pygame.display.flip()
@@ -149,8 +145,8 @@ def get_ghost_piece(current_piece, board):
         ghost.y += 1
     return ghost
 
-def add_random_layer(env, prob_bloque=0.7):
-    fila = np.random.choice([0, 1], size=(1, env.board.shape[1]), p=[1 - prob_bloque, prob_bloque])
+def add_random_layer(env, fill_cell_prob=0.7):
+    fila = np.random.choice([0, 1], size=(1, env.board.shape[1]), p=[1 - fill_cell_prob, fill_cell_prob])
 
     # Si la fila está completamente llena, eliminar un 1 aleatorio
     if np.sum(fila) == env.board.shape[1]:
@@ -203,7 +199,6 @@ def generar_tablero_con_piezas(max_altura):
 def save_transition_to_csv(obs, action, next_obs, reward, done, filename):
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     file_exists = os.path.isfile(filename)
-
     with open(filename, mode='a', newline='') as file:
         writer = csv.DictWriter(file, delimiter=';', fieldnames=[
             'board', 'queue', 'piece_type', 'piece_shape',
@@ -249,8 +244,9 @@ def save_transition_to_csv(obs, action, next_obs, reward, done, filename):
 
 
 
-def main(game_mode="clean", time_limit=120, prob_bloque=0.75, gen_tab_height=6, mode_interval=10000):
+def main(game_mode="clean", time_limit=120, fill_cell_prob=0.75, gen_tab_height=6, mode_interval=10):
     game_modes = ["clean", "cheese", "opener"]
+    mode_interval = mode_interval * 1000
     assert game_mode in game_modes, f"Modo de juego no valido: '{game_mode}'. Debe ser uno de estos {game_modes}"
     # Obtener fecha y hora actual
     now = datetime.now()
@@ -266,7 +262,7 @@ def main(game_mode="clean", time_limit=120, prob_bloque=0.75, gen_tab_height=6, 
     pygame.display.set_caption("Tetris RL")
     clock = pygame.time.Clock()
 
-    env = TetrisEnv()
+    env = TetrisEnv(obs_type="dict")
     obs = env.reset()
     
     if game_mode == "cheese":
@@ -285,7 +281,7 @@ def main(game_mode="clean", time_limit=120, prob_bloque=0.75, gen_tab_height=6, 
 
         # GAMEMODES
         if game_mode == "cheese" and pygame.time.get_ticks() - game_mode_timer > mode_interval:
-            add_random_layer(env, prob_bloque)
+            add_random_layer(env, fill_cell_prob)
             game_mode_timer = pygame.time.get_ticks()
 
         if game_mode == "opener" and pygame.time.get_ticks() - game_mode_timer > mode_interval:
@@ -346,10 +342,10 @@ if __name__ == "__main__":
     cantidad = contador
     print(f"Cantidad de datasets en {path}: {cantidad}")
     main(
-        game_mode="opener", 
-        time_limit=300,
-        prob_bloque=0.8,
+        game_mode="cheese", 
+        time_limit=60,
+        fill_cell_prob=0.8,
         gen_tab_height=7,
-        mode_interval=7000
+        mode_interval=7
     )
 
