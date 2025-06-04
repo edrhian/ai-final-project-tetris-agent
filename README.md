@@ -1,10 +1,8 @@
 # Tetris RL Agent - Final AI Project
 
-My final project of AI
-
 ## Introduction
 
-This is the final project for my Artificial Intelligence course. It involves building and training a reinforcement learning agent to play Tetris using a custom environment built with the Gymnasium library.
+This is the final project for my Artificial Intelligence course. It involves building and training a reinforcement learning agent to play Tetris using a custom environment built with the [Gymnasium](https://gymnasium.farama.org/index.html) library.
 
 ## About the environment
 
@@ -93,8 +91,11 @@ Rewards are calculated after each piece is placed, based on the following factor
 - **Finesse**:
   - Bonus if the piece is placed within 20 actions.
   - Penalty if more than 20.
+
 - **Hardrop**:
   - Bonus for every descended cell with a hardrop
+
+- **Clearing Lines**:
 
 ### Render modes
 
