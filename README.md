@@ -4,6 +4,10 @@
 
 This is the final project for my Artificial Intelligence course. It involves building and training a reinforcement learning agent to play Tetris using a custom environment built with the [Gymnasium](https://gymnasium.farama.org/index.html) library.
 
+## Demo
+
+[Video of the training during 16.000 episodes](https://youtu.be/HMljmDwaNYU)
+
 ## About the environment
 
 The environment was not registered via `gymnasium.envs.registration`
